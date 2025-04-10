@@ -1,0 +1,166 @@
+import { useState } from "react";
+import { statusDisputeData } from "../../../utils/LinkData";
+import { Select } from "../../select/Select";
+import { useQuery } from "@tanstack/react-query";
+import { GetRegisteredRegistrarRequest } from "../../../Services/SuperAdminRequest/cases.request";
+
+const UploadFormTwo = ({
+  register,
+  errors,
+  getStatusDisputeName,
+  setGetStatusDisputeName,
+  token
+}) => {
+  const [showDateOfDisposal, setShowDateOfDisposal] = useState(false);
+
+  const handleStatusDisputeChange = (item) => {
+    setGetStatusDisputeName(item?.name);
+    setShowDateOfDisposal(item?.name === "Disposed");
+  };
+
+  // React Tanstack Query for data fetching logic
+  const { data: registrarData, isLoading } = useQuery({
+    queryKey: ["getRegisteredRegistrar"],
+    queryFn: () => GetRegisteredRegistrarRequest(token),
+  });
+
+  console.log("registrars1", registrarData);
+  console.log("registrars2", GetRegisteredRegistrarRequest);
+
+  return (
+    <>
+      <section>
+        <div className="bg-white md:grid md:grid-cols-2 md:gap-4  p-3 py-6 md:p-10">
+          {/* ===========Suit Number =========== */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor="">Suit Number:</label>
+            <input
+              type="text"
+              name="suitNumber"
+              className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("suitNumber")}
+            />
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.suitNumber?.message}
+            </p>
+          </div>
+          {/* ================ Nature of dispute: ============= */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor=""> Nature of dispute:</label>
+            <input
+              type="text"
+              name="natureDispute"
+              className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("natureDispute")}
+            />
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.natureDispute?.message}
+            </p>
+          </div>
+
+          {/* =========== Court ========== */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor="">Court</label>
+            <input
+              type="text"
+              name="court"
+              className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("court")}
+            />
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.court?.message}
+            </p>
+          </div>
+
+          {/* =========== Judicial Division ========== */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor="">Judicial Division :</label>
+            <input
+              type="text"
+              name="courtDivision"
+              className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("courtDivision")}
+            />
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.courtDivision?.message}
+            </p>
+          </div>
+
+          {/* ============ Court Registrar ============= */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor="">Court Registrar:</label>
+            <select
+              name="courtRegistrarId"
+              className="w-full mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("courtRegistrarId")}
+            >
+              <option value="">Select Court Registrar</option>
+              {isLoading ? (
+                <option>Loading...</option>
+              ) : (
+                registrarData?.data?.map((registrar) => (
+                  <option key={registrar.id} value={registrar.id}>
+                    {registrar.name}
+                  </option>
+                ))
+              )}
+            </select>
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.courtRegistrarId?.message}
+            </p>
+          </div>
+
+          {/* ============ Status of dispute: ============= */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor=""> Status of dispute:</label>
+            <Select
+              focusContent=""
+              placeholder="search"
+              onSelect={handleStatusDisputeChange}
+              inputData={statusDisputeData}
+              selectOption=""
+              register={{ ...register("statusDispute") }}
+            />
+            {!getStatusDisputeName && (
+              <p className="text-red-500 text-[0.75rem]">
+                {errors?.statusDispute?.message}
+              </p>
+            )}
+          </div>
+
+          {/* ============Date of Commencement: ========== */}
+          <div className="max-w-[400px] mb-4">
+            <label htmlFor="">Date of Commencement of Claim/dispute:</label>
+            <input
+              type="date"
+              name="dateCommencement"
+              className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+              {...register("dateCommencement")}
+            />
+            <p className="text-red-500 text-[0.75rem]">
+              {errors.dateCommencement?.message}
+            </p>
+          </div>
+
+          {/* ============If ‘Disposed’ date of disposal: ========== */}
+          {showDateOfDisposal && (
+            <div className="max-w-[400px] mb-4">
+              <label htmlFor="">Date of Disposal:</label>
+              <input
+                type="date"
+                name="disposed"
+                className="w-full  mt-4 outline-none focus:out-none border-[1.2px] border-slate-300 rounded-lg p-2"
+                {...register("disposed")}
+              />
+              {/* <p className="text-red-500 text-[0.75rem]">
+                {errors.disposed?.message}
+              </p> */}
+            </div>
+          )}
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default UploadFormTwo;
